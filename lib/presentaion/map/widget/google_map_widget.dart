@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:snapchat_machine_tesr/utils/functions/check_permission.dart';
 
 class GoogleMapWidget extends StatefulWidget {
   const GoogleMapWidget({
@@ -16,6 +18,31 @@ class GoogleMapWidget extends StatefulWidget {
 }
 
 class _GoogleMapWidgetState extends State<GoogleMapWidget> {
+  String? _currentAddress;
+  Position? _currentPosition;
+  Future<void> _getCurrentPosition() async {
+    final hasPermission = await handleLocationPermission(context);
+    if (!hasPermission) return;
+    liveLoaction();
+  }
+
+  void liveLoaction() {
+    LocationSettings locationSettings = const LocationSettings(
+        accuracy: LocationAccuracy.high, distanceFilter: 100);
+    Geolocator.getPositionStream(locationSettings: locationSettings)
+        .listen((Position pos) {
+      setState(() {
+        _currentPosition = pos;
+      });
+    });
+  }
+
+  @override
+  void initState() {
+    _getCurrentPosition();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     Set<Marker> marker = {
@@ -73,6 +100,14 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
         icon: widget.snapshot.data![8],
         infoWindow: const InfoWindow(title: "Person 9"),
       ),
+      _currentPosition == null
+          ? const Marker(markerId: MarkerId("Person 9"))
+          : Marker(
+              markerId: const MarkerId("Live location"),
+              infoWindow: const InfoWindow(title: "Live location (YOU)"),
+              position: LatLng(
+                  _currentPosition!.latitude, _currentPosition!.longitude),
+            )
     };
     return GoogleMap(
         initialCameraPosition: CameraPosition(
