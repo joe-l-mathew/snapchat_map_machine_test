@@ -45,7 +45,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
     super.initState();
   }
 
-  List<LatLng> latlangList = [
+  List<LatLng> latlangList = const [
     LatLng(11.269087, 75.831703),
     LatLng(11.234882, 75.857424),
     LatLng(11.232456, 75.806438),
@@ -158,9 +158,6 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
       ),
       Marker(
         onTap: () {
-          if (_currentPosition == null) {
-            return;
-          }
           MyBottomSheet.showFullScreenBottomSheet(
             context,
             UserModel(userName: "Person 8", latlang: latlangList[8], index: 8),
@@ -174,6 +171,19 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
       _currentPosition == null
           ? const Marker(markerId: MarkerId("Null"))
           : Marker(
+              onTap: () {
+                if (_currentPosition == null) {
+                  return;
+                }
+                MyBottomSheet.showFullScreenBottomSheet(
+                  context,
+                  UserModel(
+                      userName: "Live user",
+                      latlang: LatLng(_currentPosition!.latitude,
+                          _currentPosition!.longitude),
+                      index: 8),
+                );
+              },
               markerId: const MarkerId("Live location"),
               infoWindow: const InfoWindow(title: "Live location (YOU)"),
               position: LatLng(
